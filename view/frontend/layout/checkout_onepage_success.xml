@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<body>
+    <referenceBlock name="checkout.success" remove="true"/>
+    <referenceContainer name="content">
+        <block class="Magmalabs\OrderSuccess\Block\Success" name="order.details.success" template="Magmalabs_OrderSuccess::order/success.phtml" after="-" />
+        <container name="order.success.additional.info" label="Order Success Additional Info" />
+    </referenceContainer>
+</body>
