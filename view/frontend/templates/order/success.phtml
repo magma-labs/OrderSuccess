@@ -1,0 +1,107 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php /** @var $block Magmalabs\OrderSuccess\Block\Success */ ?>
+<?php $order = $block->getOrder(); ?>
+<?php $helper = $this->helper('Magmalabs\OrderSuccess\Helper\Data'); ?>
+
+<div class="checkout-success">
+    <?php if ($block->getOrderId()):?>
+        <?php if ($block->getCanViewOrder()) :?>
+            <p><?= __('Your order number is: %1.', sprintf('<a href="%s" class="order-number"><strong>%s</strong></a>', $block->escapeHtml($block->getViewOrderUrl()), $block->escapeHtml($block->getOrderId()))) ?></p>
+        <?php  else :?>
+            <p><?= __('Your order # is: <span>%1</span>.', $block->escapeHtml($block->getOrderId())) ?></p>
+        <?php endif;?>
+        <p><?= /* @escapeNotVerified */ __('We\'ll email you an order confirmation with details and tracking info.') ?></p>
+    <?php endif;?>
+    <?= $block->getAdditionalInfoHtml() ?>
+
+    <div class="show-order">
+        <table>
+            <thead>
+            <tr>
+                <th colspan="2"><?php /* @escapeNotVerified */ echo __('Product Name'); ?></th>
+                <th><?php /* @escapeNotVerified */ echo __('SKU'); ?></th>
+                <th class="table-number"><?php /* @escapeNotVerified */ echo __('Price'); ?></th>
+                <th class="table-number"><?php /* @escapeNotVerified */ echo __('Qty'); ?></th>
+                <th class="table-number"><?php /* @escapeNotVerified */ echo __('Subtotal'); ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
+            foreach ($order->getAllVisibleItems() as $item) {
+                $product = $helper->getProductById($item->getProductId());
+                $options = $item->getProductOptions();
+                $imageBlock = $block->getLayout()->createBlock('Magento\Catalog\Block\Product\ListProduct');
+                $productImage = $imageBlock->getImage($product, 'category_page_list');
+                ?>
+                <tr class="data-item">
+                    <td colspan="2">
+                        <div class="product-image">
+                            <a href="<?php echo $product->getProductUrl(); ?>"><?php echo $productImage->toHtml(); ?></a>
+                        </div>
+                        <h2 class="product-name"><span><?php echo $item->getName(); ?></span></h2>
+                        <?php
+                        if (!empty($options['attributes_info'])) {
+                            foreach ($options['attributes_info'] as $option) {
+                                ?>
+                                <dl class="product-option">
+                                    <dt class="option-label"><?php echo $option['label']; ?></dt>
+                                    <dd class="option-value"><?php echo $option['value']; ?></dd>
+                                </dl>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </td>
+                    <td><?php echo $product->getSku(); ?></td>
+                    <td class="table-number"><?php echo $helper->getFormatedPrice($item->getPrice()); ?></td>
+                    <td class="table-number"><?php echo $item->getQtyOrdered(); ?></td>
+                    <td class="table-number"><?php echo $helper->getFormatedPrice($item->getBaseRowTotal()); ?></td>
+                </tr>
+                <?php
+            }
+            ?>
+
+            </tbody>
+            <tfoot>
+            <tr class="subtotal">
+                <th colspan="5" class="table-method" scope="row">
+                    <?php /* @escapeNotVerified */ echo __('Subtotal'); ?>
+                </th>
+                <td class="number" data-th="<?php /* @escapeNotVerified */ echo __('Subtotal'); ?>">
+                    <span class="price"><?php echo $helper->getFormatedPrice($order->getSubtotal()); ?></span>
+                </td>
+            </tr>
+            <tr class="shipping">
+                <th colspan="5" class="table-method" scope="row">
+                    <?php /* @escapeNotVerified */ echo __('Shipping &amp; Handling'); ?>
+                </th>
+                <td class="number" data-th="<?php /* @escapeNotVerified */ echo __('Shipping &amp; Handling'); ?>">
+                    <span class="price"><?php echo $helper->getFormatedPrice($order->getShippingAmount()); ?></span>
+                </td>
+            </tr>
+            <tr class="grand_total">
+                <th colspan="5" class="table-method" scope="row">
+                    <strong><?php /* @escapeNotVerified */ echo __('Grand Total'); ?></strong>
+                </th>
+                <td class="number" data-th="<?php /* @escapeNotVerified */ echo __('Grand Total'); ?>">
+                    <strong><span class="price"><?php echo $helper->getFormatedPrice($order->getGrandTotal()); ?></span></strong>
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="actions-toolbar">
+        <div class="primary">
+            <a class="action primary continue" href="<?= /* @escapeNotVerified */ $block->getContinueUrl() ?>"><span><?= /* @escapeNotVerified */ __('Continue Shopping') ?></span></a>
+        </div>
+    </div>
+</div>

@@ -8,6 +8,7 @@
 
 namespace Magmalabs\OrderSuccess\Helper;
 
+use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Mail\Template\TransportBuilder;
@@ -37,16 +38,35 @@ class Data extends AbstractHelper
     /** @var StateInterface $inlineTranslation */
     protected $inlineTranslation;
 
+    /** @var ProductRepository $productRepository */
+    protected $productRepository;
 
+    /** @var \Magento\Framework\Pricing\Helper\Data */
+    protected $priceHelper;
+
+
+    /**
+     * Data constructor.
+     * @param Context $context
+     * @param TransportBuilder $transportBuilder
+     * @param StoreManager $storeManager
+     * @param StateInterface $inlineTranslation
+     * @param ProductRepository $productRepository
+     * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
+     */
     public function __construct(
         Context $context,
         TransportBuilder $transportBuilder,
         StoreManager $storeManager,
-        StateInterface $inlineTranslation
+        StateInterface $inlineTranslation,
+        ProductRepository $productRepository,
+        \Magento\Framework\Pricing\Helper\Data $priceHelper
     ) {
         $this->transportBuilder = $transportBuilder;
         $this->storeManager = $storeManager;
         $this->inlineTranslation = $inlineTranslation;
+        $this->productRepository = $productRepository;
+        $this->priceHelper = $priceHelper;
         parent::__construct($context);
     }
 
@@ -153,4 +173,24 @@ class Data extends AbstractHelper
     {
         return self::ORDER_SUCCESS_ITEMS_TEMPLATE_ID;
     }
+
+    /**
+     * @param int $id Product id
+     * @return $this
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getProductById($id)
+    {
+        return $this->productRepository->getById($id);
+    }
+
+    /**
+     * @param mixed price
+     * @return boolean
+     */
+    public function getFormatedPrice($price='')
+    {
+        return $this->priceHelper->currency($price, true, false);
+    }
+
 }
