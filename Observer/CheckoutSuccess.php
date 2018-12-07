@@ -10,9 +10,9 @@ namespace Magmalabs\OrderSuccess\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Message\Manager;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\OrderNotifier;
 use Magmalabs\OrderSuccess\Helper\Data;
 
@@ -35,18 +35,35 @@ class CheckoutSuccess implements ObserverInterface
     /** @var Order */
     protected $orderModel;
 
+    /** @var TransportBuilder */
+    protected $transportBuilder;
+
+    /** @var \Magento\Store\Model\App\Emulation $emulation */
+    protected $emulation;
+
     /**
      * CheckoutSuccess constructor.
      * @param Data $helper
      * @param OrderNotifier $orderNotifier
      * @param Manager $messageManager
+     * @param Order $orderModel
+     * @param TransportBuilder $transportBuilder
+     * @param \Magento\Store\Model\App\Emulation $emulation
      */
-    public function __construct(Data $helper, OrderNotifier $orderNotifier, Manager $messageManager, Order $orderModel)
-    {
+    public function __construct(
+        Data $helper,
+        OrderNotifier $orderNotifier,
+        Manager $messageManager,
+        Order $orderModel,
+        TransportBuilder $transportBuilder,
+        \Magento\Store\Model\App\Emulation $emulation
+    ) {
         $this->helper = $helper;
         $this->orderNotifier = $orderNotifier;
         $this->messageManager = $messageManager;
         $this->orderModel = $orderModel;
+        $this->transportBuilder = $transportBuilder;
+        $this->emulation = $emulation;
     }
 
     /**
@@ -57,14 +74,13 @@ class CheckoutSuccess implements ObserverInterface
     {
         if ($this->helper->isModuleEnabled()) {
             $orderIds  = $observer->getEvent()->getOrderIds();
-            $email = $this->helper->getEmailCc();
 
             /** @var Order $order */
             $order = $this->getOrder($orderIds);
-            $order->setCustomerEmail($email);
             if ($order) {
                 try {
-                    $this->orderNotifier->notify($order);
+                    $emailData = $this->getEmailData($order);
+                    $this->helper->sendOrderItemsEmail($emailData['templateVars'], $emailData['senderInfo'], $emailData['receiverInfo']);
                 } catch (\Magento\Framework\Exception\LocalizedException $e) {
                     $this->messageManager->addError($e->getMessage());
                 } catch (\Exception $e) {
@@ -79,10 +95,33 @@ class CheckoutSuccess implements ObserverInterface
      * @param $ids
      * @return Order
      */
-    public function getOrder($ids)
+    private function getOrder($ids)
     {
         $orderId   = $ids[0];
 
         return $this->orderModel->load($orderId);
+    }
+
+    /**
+     * @param $order
+     * @return array
+     */
+    private function getEmailData($order)
+    {
+        $emailData = [];
+
+        $emailData['receiverInfo'] = [
+            'name' => $this->helper->getStoreName(),
+            'email' => $this->helper->getEmailCc()
+        ];
+
+        $emailData['senderInfo'] = [
+            'name' => $this->helper->getStoreName(),
+            'email' => $this->helper->getContactEmail(),
+        ];
+
+        $emailData['templateVars']['order'] = $order;
+
+        return $emailData;
     }
 }
