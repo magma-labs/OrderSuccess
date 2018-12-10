@@ -24,10 +24,11 @@ class Data extends AbstractHelper
 {
     const XML_PATH_MAGMALABS_SHASA_DEMO_EMAIL = 'shasa_demo/general/email_cc';
     const XML_PATH_MAGMALABS_SHASA_DEMO_ENABLE = 'shasa_demo/general/enable';
-    const XML_PATH_MAGMALABS_SHASA_DEMO_SUCCESS_PAGE_ENABLE = 'shasa_demo/general/enable_success_page_items';
     const XML_PATH_MAGMALABS_CONTACT_EMAIL = 'trans_email/ident_support/email';
     const XML_PATH_MAGMALABS_STORE_NAME = 'general/store_information/name';
     const ORDER_SUCCESS_ITEMS_TEMPLATE_ID = 'after_success_order';
+    const MAGENTO_TEMPLATE = 'Magento_Checkout::success.phtml';
+    const MAGMA_TEMPLATE = 'Magmalabs_OrderSuccess::order/success.phtml';
 
     /** @var TransportBuilder $transportBuilder */
     protected $transportBuilder;
@@ -88,15 +89,6 @@ class Data extends AbstractHelper
     public function isModuleEnabled($storeId = null)
     {
         return $this->getConfigValue(self::XML_PATH_MAGMALABS_SHASA_DEMO_ENABLE, $storeId);
-    }
-
-    /**
-     * @param null $storeId
-     * @return string
-     */
-    public function isSuccessPageRenderEnable($storeId = null)
-    {
-        return $this->getConfigValue(self::XML_PATH_MAGMALABS_SHASA_DEMO_SUCCESS_PAGE_ENABLE, $storeId);
     }
 
     /**

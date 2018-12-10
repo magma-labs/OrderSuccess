@@ -15,14 +15,6 @@
                     <label>Module Enable</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="enable_success_page_items" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Show ordered items in success page</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Show a list of ordered items in success page.</comment>
-                    <depends>
-                        <field id="shasa_demo/general/enable">1</field>
-                    </depends>
-                </field>
                 <field id="email_cc" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Email cc</label>
                     <comment>Send a copy of new order email.</comment>
